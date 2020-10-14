@@ -2,7 +2,7 @@
 
 in .env change port to ur liking 
 then run
-npm i
+    npm i
 then 
-node server.js
+    node server.js
 server is up :)

@@ -8,19 +8,25 @@ app.get('/', function (req, res) {
 });
 
 app.post(`/lol`, function(req, res){
-  var Client = require('node-torrent');
-  var client = new Client({logLevel: 'DEBUG'});
-  var torrent = client.addTorrent(req.body.torrent);
-   
-  torrent.on('complete', function() {
-      console.log('complete!');
-      torrent.files.forEach(function(file) {
-          var newPath = '/downloads/' + file.path;
-          fs.rename(file.path, newPath);
-          
-          file.path = newPath;
-      });
-  });
+  console.log(req.body.torrent)
+  var WebTorrent = require('webtorrent')
+  var client = new WebTorrent()
+  
+  let conf = {}
+  conf.path = __dirname+"/dl/"
+
+  client.add(req.body.torrent,conf,(torrent)=>{
+    setInterval(() => {
+      var percent = Math.round(torrent.progress * 100 * 100) / 100
+      console.log(percent)
+    }, 1000);
+    torrent.on('done', function () {
+      res.send("Torrent downloaded")
+      clearInterval()
+      console.log('torrent download finished')
+      res.end()
+    })
+  })
 });
 app.get('/exit', function (req, res) {
     process.exit();
